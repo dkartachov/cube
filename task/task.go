@@ -50,6 +50,8 @@ type Config struct {
 	RestartPolicy string
 }
 
+// TODO Should ideally create some kind of ContainerRuntime interface to decouple
+// the orchestrator from the container software. Right now it's heavily dependent on Docker.
 type Docker struct {
 	Client      *client.Client
 	Config      Config
