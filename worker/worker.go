@@ -21,7 +21,7 @@ type Worker struct {
 
 func (w *Worker) CollectStats() {
 	for {
-		log.Print("Collecting stats")
+		log.Printf("[worker: %s] collecting stats", w.Name)
 
 		w.Stats = GetStats()
 
@@ -35,11 +35,11 @@ func (w *Worker) AddTask(t task.Task) {
 	w.Queue.Enqueue(t)
 }
 
-func (w *Worker) RunTask() task.DockerResult {
+func (w *Worker) runTask() task.DockerResult {
 	t := w.Queue.Dequeue()
 
 	if t == nil {
-		log.Printf("No tasks found in queue")
+		log.Printf("[worker: %s] no tasks found in queue", w.Name)
 
 		return task.DockerResult{Error: nil}
 	}
@@ -64,7 +64,7 @@ func (w *Worker) RunTask() task.DockerResult {
 			result.Error = errors.New("we should not get here")
 		}
 	} else {
-		err := fmt.Errorf("invalid transition from %v to %v", taskPersisted.State, taskQueued.State)
+		err := fmt.Errorf("[worker: %s] invalid transition from %v to %v", w.Name, taskPersisted.State, taskQueued.State)
 
 		result.Error = err
 	}
@@ -81,7 +81,7 @@ func (w *Worker) StartTask(t task.Task) task.DockerResult {
 	result := d.Run()
 
 	if result.Error != nil {
-		log.Printf("Error running task %s: %v", t.ID, result.Error)
+		log.Printf("[worker: %s] error running task %s: %v", w.Name, t.ID, result.Error)
 		t.State = task.Failed
 		w.Db[t.ID] = &t
 
@@ -104,7 +104,7 @@ func (w *Worker) StopTask(t task.Task) task.DockerResult {
 	result := d.Stop()
 
 	if result.Error != nil {
-		log.Printf("Error stopping container %s: %v", d.ContainerId, result.Error)
+		log.Printf("[worker: %s] error stopping container %s: %v", w.Name, d.ContainerId, result.Error)
 
 		return result
 	}
@@ -113,7 +113,7 @@ func (w *Worker) StopTask(t task.Task) task.DockerResult {
 	t.State = task.Completed
 	w.Db[t.ID] = &t
 
-	log.Printf("Stopped and removed container %s for task %s", d.ContainerId, t.ID)
+	log.Printf("[worker: %s] stopped and removed container %s for task %s", w.Name, d.ContainerId, t.ID)
 
 	return result
 }
@@ -126,4 +126,21 @@ func (w *Worker) GetTasks() []task.Task {
 	}
 
 	return tasks
+}
+
+func (w *Worker) RunTasks() {
+	for {
+		if w.Queue.Len() != 0 {
+			result := w.runTask()
+
+			if result.Error != nil {
+				log.Printf("[worker: %s] error running task: %v", w.Name, result.Error)
+			}
+		} else {
+			log.Printf("[worker: %s] no tasks found", w.Name)
+		}
+
+		log.Printf("[worker: %s] sleeping for 10 seconds", w.Name)
+		time.Sleep(time.Second * 10)
+	}
 }

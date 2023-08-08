@@ -91,7 +91,7 @@ func (d *Docker) Run() DockerResult {
 	reader, err := d.Client.ImagePull(ctx, d.Config.Image, types.ImagePullOptions{})
 
 	if err != nil {
-		log.Printf("Error pulling image %s: %v", d.Config.Image, err)
+		log.Printf("[docker] error pulling image %s: %v", d.Config.Image, err)
 
 		return DockerResult{Error: err}
 	}
@@ -113,7 +113,7 @@ func (d *Docker) Run() DockerResult {
 	resp, err := d.Client.ContainerCreate(ctx, &cc, &hc, nil, nil, d.Config.Name)
 
 	if err != nil {
-		log.Printf("Error creating container using image %s: %v", d.Config.Image, err)
+		log.Printf("[docker] error creating container using image %s: %v", d.Config.Image, err)
 
 		return DockerResult{Error: err}
 	}
@@ -121,7 +121,7 @@ func (d *Docker) Run() DockerResult {
 	err = d.Client.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{})
 
 	if err != nil {
-		log.Printf("Error starting container %s: %v", resp.ID, err)
+		log.Printf("[docker] error starting container %s: %v", resp.ID, err)
 
 		return DockerResult{Error: err}
 	}
@@ -131,7 +131,7 @@ func (d *Docker) Run() DockerResult {
 	out, err := d.Client.ContainerLogs(ctx, resp.ID, types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true})
 
 	if err != nil {
-		log.Printf("Error getting logs for container %s: %v", resp.ID, err)
+		log.Printf("[docker] error getting logs for container %s: %v", resp.ID, err)
 
 		return DockerResult{Error: err}
 	}
@@ -148,13 +148,13 @@ func (d *Docker) Run() DockerResult {
 func (d *Docker) Stop() DockerResult {
 	id := d.ContainerId
 
-	log.Printf("Attempting to stop container %s", id)
+	log.Printf("[docker] attempting to stop container %s", id)
 
 	ctx := context.Background()
 	err := d.Client.ContainerStop(ctx, id, container.StopOptions{})
 
 	if err != nil {
-		log.Printf("Error stopping container %s: %v", id, err)
+		log.Printf("[docker] error stopping container %s: %v", id, err)
 
 		return DockerResult{Error: err}
 	}
@@ -162,7 +162,7 @@ func (d *Docker) Stop() DockerResult {
 	err = d.Client.ContainerRemove(ctx, id, types.ContainerRemoveOptions{RemoveVolumes: true, RemoveLinks: false, Force: false})
 
 	if err != nil {
-		log.Printf("Error removing container %s: %v", id, err)
+		log.Printf("[docker] error removing container %s: %v", id, err)
 
 		return DockerResult{Error: err}
 	}
