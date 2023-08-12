@@ -61,7 +61,7 @@ func (m *Manager) SendWork() {
 	te := teInterface.(task.TaskEvent)
 	t := te.Task
 
-	log.Printf("[manager] pulled %v off pending queue", t)
+	log.Printf("[manager] pulled %v off pending queue", t.ID)
 
 	m.EventDb[te.ID] = &te
 	m.TaskWorkerMap[t.ID] = w

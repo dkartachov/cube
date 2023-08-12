@@ -14,6 +14,10 @@ type Api struct {
 	Router  *chi.Mux
 }
 
+// TODO add graceful shutdown route that will
+// 1. Stop all running containers
+// 2. Shutdown all workers
+// 3. Shutdown manager
 func (a *Api) InitRouter() {
 	a.Router = chi.NewRouter()
 	a.Router.Route("/tasks", func(r chi.Router) {

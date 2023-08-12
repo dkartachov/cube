@@ -90,4 +90,5 @@ func (a *Api) StopTaskHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("[manager-api] added task event %v to stop task %v", te.ID, taskToStop.ID)
 
 	w.WriteHeader(http.StatusNoContent)
+	w.Write([]byte("stopping task"))
 }
