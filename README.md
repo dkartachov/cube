@@ -1,3 +1,5 @@
+Disclaimer: Moved to [Borz](https://github.com/dkartachov/borz). I decided to work on my own orchestrator from scratch because it's more fun that way.
+
 # Cube
 This is a simple container orchestrator I am building while following [Tim Boring](https://github.com/timboring)'s book [_Build an Orchestrator in Go (From Scratch)_](https://www.manning.com/books/build-an-orchestrator-in-go-from-scratch?new=true&experiment=B).
 
